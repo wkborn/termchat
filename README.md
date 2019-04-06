@@ -1,0 +1,1 @@
+An ncurses terminal chat program.
