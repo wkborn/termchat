@@ -2,7 +2,7 @@
 
 Message *create_list(int num, int max_num){
     if(num<2){
-        printf("%s","Must create list of more than 2 messages.\n");
+        printw("%s","Must create list of more than 2 messages.\n");
         return NULL;
     }
     Message *first = calloc(1,sizeof(Message));
@@ -25,11 +25,11 @@ Message *create_list(int num, int max_num){
 
 void print_list(Message *e) {
     if(e==NULL){
-        printf("Cannot print. List does not exist.");
+        printw("Cannot print. List does not exist.");
     }
-    printf("List:\n-----\n");
+    printw("List:\n-----\n");
     while(e != NULL){
-        printf("%s \n",e->msg);
+        printw("%s \n",e->msg);
         e=e->next;
     }
 }

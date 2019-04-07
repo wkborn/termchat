@@ -18,10 +18,10 @@ int message_parse(ENetEvent e){
     msg = strtok_r(NULL, ":", &saveptr);
     Client *this = retrieve_client(clients,id);
     if(this==NULL){
-        printf("illegal client\n");
+        printw("illegal client\n");
         return -1;
     }
-    printf("<%s> %s\n",this->name,msg);
+    printw("<%s> %s\n",this->name,msg);
 
     append_message(messages,this,msg);
 

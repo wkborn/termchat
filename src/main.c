@@ -18,7 +18,9 @@ void intHandler(int dummy) {
 
 int main(int argc, char* argv[]){
 
-    signal(SIGINT, intHandler);
+    signal(SIGINT, intHandler);	
+	
+
 
     int i;
     for (i = 0; i < argc; ++i){
@@ -48,14 +50,19 @@ int main(int argc, char* argv[]){
 
 int init(){
 
+    initscr();			/* Start curses mode 		  */
+    cbreak();
+
     switch(state){
         case SERVER:
             init_server();
         break;
         case CLIENT:;
             char address[NETBUFFER_SIZE];
-            printf("Server Address: ");
-            fgets( address, NETBUFFER_SIZE, stdin );
+            printw("Server Address: ");
+            refresh();
+            echo();			/* Wait for user input */
+            scanw( "%s", address );
             strtok(address, "\n");
             if(init_client(address)<0){
                 run=0;
@@ -76,12 +83,18 @@ int actions(){
             client_actions();
         break;
     }
+
+    refresh();			/* Print it on to the real screen */
     return 0;
 }
 
 int quit(){
 
+    endwin();			/* End curses mode		  */
+
     printf("\nexiting\n");
+
+    
 
     switch(state){
         case SERVER:

@@ -7,24 +7,24 @@ int init_client(char* host_ip){
     this_client = calloc(1,sizeof(Client));
     this_client->id=rand();
     this_client->name = calloc(BUFFER_SIZE, sizeof(char));
-    printf("Client name: ");
-    fgets( this_client->name, BUFFER_SIZE, stdin );
+    printw("Client name: ");
+    scanw( "%s", this_client->name );
     strtok(this_client->name, "\n");
     this_client->next = NULL;
 
-    printf("Client created:\nname: %s\nid: %d\n",this_client->name, this_client->id);
+    printw("Client created:\nname: %s\nid: %d\n",this_client->name, this_client->id);
 
     recieved_handshake=0;
 
     if(enet_initialize() != 0){
-        printf("Could not initialize networking.\n");
+        printw("Could not initialize networking.\n");
         return -1;
     }
 
     client = enet_host_create(NULL, 1, 0, 5760/8, 1440/8);
 
     if(client == NULL){
-        printf("Could not create client.\n");
+        printw("Could not create client.\n");
         return -1;
     }
 
@@ -39,18 +39,18 @@ int init_client(char* host_ip){
 
     peer = enet_host_connect(client, address, 0, 0);
     if(peer == NULL){
-        printf("could not open connection on client");
+        printw("could not open connection on client");
         return -1;
     }else
     {
-        printf("connecting to %s ...\n", host_ip);
+        printw("connecting to %s ...\n", host_ip);
     }
 
     if(enet_host_service(client, &event, 1000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT){
         initial_connect();
-        printf("handshaked. \n");
+        printw("handshaked. \n");
     }else{
-        printf("could not connect to %s\n", host_ip);
+        printw("could not connect to %s\n", host_ip);
         return -1;
     }
 
@@ -61,15 +61,15 @@ int init_client(char* host_ip){
     run=1;
     pthread_create( &chat_thread, NULL, chat_handler, NULL);
 
-    printf("client initialized\n");
+    printw("client initialized\n");
     return 0;
 }
 
 void * chat_handler( void *ptr ){
     while (run){
         char message[MESSAGE_SIZE];
-        printf("Chat> ");
-        fgets( message, MESSAGE_SIZE, stdin );
+        printw("Chat> ");
+        scanw( "%s", message );
         strtok(message, "\n");
         snprintf(net_buffer,NETBUFFER_SIZE,"%d:%d:%s:", MESSAGE, this_client->id, message);
         send_server_message();
@@ -79,7 +79,7 @@ void * chat_handler( void *ptr ){
 
 int initial_connect(){
     snprintf(net_buffer,NETBUFFER_SIZE,"%d:%d:%s",CONNECT,this_client->id,this_client->name);
-    printf("sending: %s\n", net_buffer);
+    printw("sending: %s\n", net_buffer);
     send_server_message();
     return 0;
 }
@@ -135,7 +135,7 @@ int client_parse_packet(ENetEvent e){
             strtok_r((char*)e.packet->data ,":", &saveptr); // JUST THE OPCODE, can be thrown away
             name = strtok_r(NULL, ":", &saveptr);
             msg = strtok_r(NULL, ":", &saveptr);
-            printf("\n<%s> %s\n",name,msg);
+            printw("\n<%s> %s\n",name,msg);
         break;
     }
     return 0;
@@ -149,7 +149,7 @@ int send_server_message(){
 
 int disconnect(){
     snprintf(net_buffer,NETBUFFER_SIZE,"%d:%d:",DISCONNECT,this_client->id);
-    printf("sending: %s\n", net_buffer);
+    printw("sending: %s\n", net_buffer);
     send_server_message();
     client_event_handle();
   return 0;

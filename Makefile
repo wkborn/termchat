@@ -8,6 +8,7 @@ LDIR =./lib
 LIBS=\
 	-lenet\
 	-lpthread\
+	-lncurses\
 
 _DEPS =
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))

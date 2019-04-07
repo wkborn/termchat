@@ -7,7 +7,7 @@ int init_server(){
   memset(address,0,sizeof(ENetAddress));
 
   if(enet_initialize() != 0){
-    printf("Could not initialize networking.\n");
+    printw("Could not initialize networking.\n");
     return -1;
   }
 
@@ -23,13 +23,13 @@ int init_server(){
   
     clients = NULL;
 
-    printf("server created\n");
+    printw("server created\n");
   return 0;
 }
 
 int server_actions(){
 
-    //printf("running\n");
+    //printw("running\n");
 
     server_event_handle();
 
@@ -44,7 +44,7 @@ int server_event_handle(){
   while(enet_host_service(server, &event, 0) > 0){
     switch(event.type){
       case ENET_EVENT_TYPE_CONNECT:
-        printf("connection event\n");
+        printw("connection event\n");
       break;
       case ENET_EVENT_TYPE_RECEIVE:
         if(event.peer->data == NULL){
@@ -93,7 +93,7 @@ int parse_packet(ENetEvent e){
         id = atoi(strtok_r(NULL, ":", &saveptr));
         name = strtok_r(NULL, ":", &saveptr);
         append_client(clients,name,id);
-        printf("%s has joined the chatroom\n",name);
+        printw("%s has joined the chatroom\n",name);
       }
     break;
     case ACTION:
@@ -112,10 +112,10 @@ int parse_packet(ENetEvent e){
         id = atoi(strtok_r(NULL, ":", &saveptr));
         Client *this = retrieve_client(clients,id);
         if(this==NULL){
-            printf("illegal client\n");
+            printw("illegal client\n");
             return -1;
         }
-        printf("%s has disconnected\n",this->name);
+        printw("%s has disconnected\n",this->name);
         
     break;
   }
@@ -228,9 +228,9 @@ Client *retrieve_client(Client *c, int id){
 
 
 void print_clients(Client *c){
-    printf("Connected Clients\n\n");
+    printw("Connected Clients\n\n");
     while (c!=NULL){
-        printf("name: %s\nid: %d\n\n",c->name,c->id);
+        printw("name: %s\nid: %d\n\n",c->name,c->id);
         c=c->next;
     }
 

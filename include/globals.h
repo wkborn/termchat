@@ -1,5 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
+
+#include<ncurses.h>
+
 #include <enet/enet.h>
 #include <sys/types.h>
 #include <sys/stat.h>
