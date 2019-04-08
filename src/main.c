@@ -53,16 +53,29 @@ int init(){
     initscr();			/* Start curses mode 		  */
     cbreak();
 
+    getmaxyx( stdscr, screen_height, screen_width );
+
     switch(state){
         case SERVER:
             init_server();
         break;
         case CLIENT:;
-            char address[NETBUFFER_SIZE];
-            printw("Server Address: ");
             refresh();
+            message_box_border = create_newwin(screen_height-6, screen_width, 0,0);
+            chat_box_border = create_newwin(5, screen_width, screen_height-5,0);
+            message_box = create_newwin(screen_height-8, screen_width-2, 1,1);
+            chat_box = create_newwin(3, screen_width-2, screen_height-4,1);
+            wclear(message_box);
+            wclear(chat_box);
+            char address[NETBUFFER_SIZE];
+            wprintw(message_box,"Server Address: ");
+            wrefresh(message_box);
+            wrefresh(chat_box);	
+            
+            wtimeout(chat_box,100);
+
             echo();			/* Wait for user input */
-            scanw( "%s", address );
+            wscanw( message_box, "%s", address );
             strtok(address, "\n");
             if(init_client(address)<0){
                 run=0;
@@ -90,20 +103,22 @@ int actions(){
 
 int quit(){
 
-    endwin();			/* End curses mode		  */
-
     printf("\nexiting\n");
-
-    
-
+ 
     switch(state){
         case SERVER:
             server_actions();
         break;
         case CLIENT:;
+            destroy_win(message_box_border);
+            destroy_win(chat_box_border);
+            destroy_win(message_box);
+            destroy_win(chat_box);
             disconnect();
             deinit_client();
         break;
     }
+
+    endwin();			/* End curses mode		  */
     return 0;
 }

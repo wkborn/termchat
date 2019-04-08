@@ -7,24 +7,28 @@ int init_client(char* host_ip){
     this_client = calloc(1,sizeof(Client));
     this_client->id=rand();
     this_client->name = calloc(BUFFER_SIZE, sizeof(char));
-    printw("Client name: ");
-    scanw( "%s", this_client->name );
+    wprintw(message_box,"Client name: ");
+    wrefresh(message_box);
+    wscanw(message_box, "%s", this_client->name );
     strtok(this_client->name, "\n");
     this_client->next = NULL;
 
-    printw("Client created:\nname: %s\nid: %d\n",this_client->name, this_client->id);
+    wprintw(message_box,"Client created:\nname: %s\nid: %d\n",this_client->name, this_client->id);
+    wrefresh(message_box);
 
     recieved_handshake=0;
 
     if(enet_initialize() != 0){
-        printw("Could not initialize networking.\n");
+        wprintw(message_box,"Could not initialize networking.\n");
+        wrefresh(message_box);
         return -1;
     }
 
     client = enet_host_create(NULL, 1, 0, 5760/8, 1440/8);
 
     if(client == NULL){
-        printw("Could not create client.\n");
+        wprintw(message_box,"Could not create client.\n");
+        wrefresh(message_box);
         return -1;
     }
 
@@ -39,18 +43,22 @@ int init_client(char* host_ip){
 
     peer = enet_host_connect(client, address, 0, 0);
     if(peer == NULL){
-        printw("could not open connection on client");
+        wprintw(message_box,"could not open connection on client");
+        wrefresh(message_box);
         return -1;
     }else
     {
-        printw("connecting to %s ...\n", host_ip);
+        wprintw(message_box,"connecting to %s ...\n", host_ip);
+        wrefresh(message_box);
     }
 
     if(enet_host_service(client, &event, 1000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT){
         initial_connect();
-        printw("handshaked. \n");
+        wprintw(message_box,"handshaked. \n");
+        wrefresh(message_box);
     }else{
-        printw("could not connect to %s\n", host_ip);
+        wprintw(message_box,"could not connect to %s\n", host_ip);
+        wrefresh(message_box);
         return -1;
     }
 
@@ -59,27 +67,28 @@ int init_client(char* host_ip){
     }
 
     run=1;
-    pthread_create( &chat_thread, NULL, chat_handler, NULL);
+    to_send = calloc(MESSAGE_SIZE,sizeof(char));
 
-    printw("client initialized\n");
+    wprintw(message_box,"client initialized\n");
+    wrefresh(message_box);
+    wclear(message_box);
     return 0;
 }
 
-void * chat_handler( void *ptr ){
-    while (run){
-        char message[MESSAGE_SIZE];
-        printw("Chat> ");
-        scanw( "%s", message );
-        strtok(message, "\n");
-        snprintf(net_buffer,NETBUFFER_SIZE,"%d:%d:%s:", MESSAGE, this_client->id, message);
-        send_server_message();
-    }
-    return NULL;
+int chat_handler( ){
+    wclear(chat_box);
+    wrefresh(chat_box);
+    snprintf(net_buffer,NETBUFFER_SIZE,"%d:%d:%s:", MESSAGE, this_client->id, to_send);
+    send_server_message();
+    free(to_send);
+    to_send = NULL;
+    to_send = calloc(MESSAGE_SIZE, sizeof(char));
+    return 0;
 }
 
 int initial_connect(){
     snprintf(net_buffer,NETBUFFER_SIZE,"%d:%d:%s",CONNECT,this_client->id,this_client->name);
-    printw("sending: %s\n", net_buffer);
+    wprintw(message_box,"sending: %s\n", net_buffer);
     send_server_message();
     return 0;
 }
@@ -92,6 +101,13 @@ int update_server(){
 
 int client_actions(){
     client_event_handle();
+    //chat_handler();
+
+    input_handle();
+
+    wclear(chat_box);
+    wprintw(chat_box,"%s",to_send);
+
     return 0;
 }
 
@@ -135,7 +151,8 @@ int client_parse_packet(ENetEvent e){
             strtok_r((char*)e.packet->data ,":", &saveptr); // JUST THE OPCODE, can be thrown away
             name = strtok_r(NULL, ":", &saveptr);
             msg = strtok_r(NULL, ":", &saveptr);
-            printw("\n<%s> %s\n",name,msg);
+            wprintw(message_box,"<%s> %s\n",name,msg);
+            wrefresh(message_box);
         break;
     }
     return 0;
@@ -149,18 +166,51 @@ int send_server_message(){
 
 int disconnect(){
     snprintf(net_buffer,NETBUFFER_SIZE,"%d:%d:",DISCONNECT,this_client->id);
-    printw("sending: %s\n", net_buffer);
+    wprintw(message_box,"sending: %s\n", net_buffer);
     send_server_message();
     client_event_handle();
   return 0;
 }
 
 int deinit_client(){
-    pthread_cancel(chat_thread);
-    pthread_join( chat_thread, NULL);
     enet_host_destroy(client);
     client=NULL;
     enet_deinitialize();
     client_online = 0;
+    return 0;
+}
+
+int input_handle(){
+    int c = wgetch(chat_box);
+    switch(c)
+    {	
+        case -1:
+            ;//do nothing
+        break;
+        case 10:
+            chat_handler();
+            break;
+        case 127:;
+            int i;
+            for (i=0;i<MESSAGE_SIZE;i++)
+              {
+                if(to_send[i]=='\0' && i>0)
+                {
+                  to_send[i-1]='\0';
+                }
+              }
+            break;
+        case 27:
+            run = 0;
+            break;
+        default:;
+            char *to_cat = calloc(1,sizeof(char));
+            snprintf(to_cat,2,"%c",c);
+            strcat(to_send,to_cat);
+            free(to_cat);
+            to_cat=NULL;
+            break;
+    }
+
     return 0;
 }

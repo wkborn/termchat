@@ -7,10 +7,6 @@
 #define PORT 1337
 
 
-
-
-int run;
-
 Message *messages;
 
 int glob_online;

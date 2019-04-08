@@ -18,7 +18,16 @@
 #include "message.h"
 #include "networking.h"
 #include "server.h"
-
-
+#include "ncurses_utils.h"
 
 #define MAX_CLIENTS 16
+
+int screen_width;
+int screen_height;
+
+int run;
+
+WINDOW *message_box_border;
+WINDOW *chat_box_border;
+WINDOW *message_box;
+WINDOW *chat_box;

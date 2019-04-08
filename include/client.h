@@ -11,15 +11,16 @@ typedef struct clientTag{
 
 int recieved_handshake;
 
-pthread_t chat_thread;
 
 
 ENetHost *client;
 
 Client *this_client;
 
+char* to_send;
+
 int init_client(char* host);
-void * chat_handler( void *ptr );
+int chat_handler();
 int client_event_handle();
 int client_parse_packet(ENetEvent e);
 int send_server_message();
@@ -28,4 +29,5 @@ int update_server();
 int client_actions();
 int initial_connect();
 int disconnect();
+int input_handle();
 #endif
