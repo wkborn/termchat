@@ -141,6 +141,13 @@ int broadcast_packet(){
   return 0;
 }
 
+int packet_to_peer(int p){
+  packet = enet_packet_create(net_buffer, strlen(net_buffer)+1, 0);
+  enet_peer_send(&server->peers[p], 0, packet);
+  enet_host_flush(server);
+  return 0;
+}
+ 
 int deinit_server(){
   enet_host_destroy(server);
   server=NULL;

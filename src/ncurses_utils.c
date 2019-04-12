@@ -1,9 +1,12 @@
 #include "globals.h"
 
-WINDOW *create_newwin(int height, int width, int starty, int startx)
+WINDOW *create_newwin(int height, int width, int starty, int startx, int cpair)
 {	WINDOW *local_win;
 
 	local_win = newwin(height, width, starty, startx);
+
+	wbkgd(local_win, COLOR_PAIR(cpair));
+
 	box(local_win, 0 , 0);		/* 0, 0 gives default characters 
 					 * for the vertical and horizontal
 					 * lines			*/

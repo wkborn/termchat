@@ -1,3 +1,6 @@
+#ifndef _GLOBALS_
+#define _GLOBALS_
+
 #include<stdio.h>
 #include<stdlib.h>
 
@@ -22,12 +25,24 @@
 
 #define MAX_CLIENTS 16
 
+
+enum STATE {
+    SERVER,
+    CLIENT
+};
+
 int screen_width;
 int screen_height;
 
 int run;
 
+int verbose;
+int state;
+
 WINDOW *message_box_border;
 WINDOW *chat_box_border;
 WINDOW *message_box;
 WINDOW *chat_box;
+
+
+#endif

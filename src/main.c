@@ -1,14 +1,5 @@
 #include "globals.h"
 
-
-enum STATE {
-    SERVER,
-    CLIENT
-};
-
-int verbose=0;
-int state = CLIENT;
-
 int init();
 int actions();
 int quit();
@@ -20,7 +11,8 @@ int main(int argc, char* argv[]){
 
     signal(SIGINT, intHandler);	
 	
-
+    verbose=0;
+    state = CLIENT;
 
     int i;
     for (i = 0; i < argc; ++i){
@@ -36,9 +28,15 @@ int main(int argc, char* argv[]){
 
     srand(time(NULL));
 
-    init();
 
     run=1;
+    init();
+
+    if(run==0){
+        quit();
+        printf("TermChat exited with error.\n");
+        return -1;
+    }
     while(run){
         actions();
     }
@@ -51,20 +49,27 @@ int main(int argc, char* argv[]){
 int init(){
 
     initscr();			/* Start curses mode 		  */
-    cbreak();
+    start_color();
+    init_pair(1, COLOR_WHITE, COLOR_BLACK);
+    init_pair(2, COLOR_RED, COLOR_WHITE);
+    init_pair(3, COLOR_CYAN, COLOR_BLACK);
+    
 
     getmaxyx( stdscr, screen_height, screen_width );
 
     switch(state){
         case SERVER:
+            cbreak();
             init_server();
         break;
         case CLIENT:;
+            raw();
             refresh();
-            message_box_border = create_newwin(screen_height-6, screen_width, 0,0);
-            chat_box_border = create_newwin(5, screen_width, screen_height-5,0);
-            message_box = create_newwin(screen_height-8, screen_width-2, 1,1);
-            chat_box = create_newwin(3, screen_width-2, screen_height-4,1);
+            message_box_border = create_newwin(screen_height-6, screen_width, 0,0,3);
+            chat_box_border = create_newwin(5, screen_width, screen_height-5,0,3);
+            message_box = create_newwin(screen_height-8, screen_width-2, 1,1,1);
+            chat_box = create_newwin(3, screen_width-2, screen_height-4,1,1);
+
             wclear(message_box);
             wclear(chat_box);
             char address[NETBUFFER_SIZE];
