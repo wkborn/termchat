@@ -6,8 +6,6 @@ int unpack_handshake(ENetEvent e){
   return 0;
 }
 
-
-
 int message_parse(ENetEvent e){
     char *saveptr;
     int id;

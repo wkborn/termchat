@@ -4,6 +4,7 @@
 
 typedef struct clientTag{
     int id;
+    int enetid;
     char* name;
     struct clientTag *next;
 } Client;

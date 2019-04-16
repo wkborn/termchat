@@ -182,6 +182,9 @@ int deinit_client(){
 
 int input_handle(){
     int c = wgetch(chat_box);
+    //printf(" <%d> ",c);
+    //wprintw(message_box," <%d> ",c);
+    //wrefresh(message_box);
     switch(c)
     {	
         case -1:
@@ -203,12 +206,14 @@ int input_handle(){
         case 27:
             run = 0;
             break;
-        default:;
-            char *to_cat = calloc(1,sizeof(char));
-            snprintf(to_cat,2,"%c",c);
-            strcat(to_send,to_cat);
-            free(to_cat);
-            to_cat=NULL;
+        default:
+            if(1){
+                char *to_cat = calloc(1,sizeof(char));
+                snprintf(to_cat,2,"%c",c);
+                strcat(to_send,to_cat);
+                free(to_cat);
+                to_cat=NULL;
+            }
             break;
     }
 
