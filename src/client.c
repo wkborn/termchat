@@ -59,6 +59,8 @@ int init_client(char* host_ip){
     }else{
         wprintw(message_box,"could not connect to %s\n", host_ip);
         wrefresh(message_box);
+        sleep(2);
+        run=0;
         return -1;
     }
 
@@ -147,11 +149,16 @@ int client_parse_packet(ENetEvent e){
             char *saveptr;
             char* name;
             char* msg;
+
             // Now parse and assign data fields
             strtok_r((char*)e.packet->data ,":", &saveptr); // JUST THE OPCODE, can be thrown away
             name = strtok_r(NULL, ":", &saveptr);
             msg = strtok_r(NULL, ":", &saveptr);
-            wprintw(message_box,"<%s> %s\n",name,msg);
+
+            wattron(message_box, COLOR_PAIR(2));
+            wprintw(message_box,"<%s>",name);
+            wattroff(message_box, COLOR_PAIR(2));
+            wprintw(message_box," %s\n",msg);
             wrefresh(message_box);
         break;
     }
@@ -166,7 +173,6 @@ int send_server_message(){
 
 int disconnect(){
     snprintf(net_buffer,NETBUFFER_SIZE,"%d:%d:",DISCONNECT,this_client->id);
-    wprintw(message_box,"sending: %s\n", net_buffer);
     send_server_message();
     client_event_handle();
   return 0;
@@ -181,10 +187,9 @@ int deinit_client(){
 }
 
 int input_handle(){
-    int c = wgetch(chat_box);
-    //printf(" <%d> ",c);
-    //wprintw(message_box," <%d> ",c);
-    //wrefresh(message_box);
+
+    int c =wgetch(chat_box);
+
     switch(c)
     {	
         case -1:

@@ -26,4 +26,5 @@ void print_clients(Client *c);
 int destroy_client(Client *c);
 int broadcast_message();
 int broadcast_packet();
+int packet_to_peer(int p);
 #endif
