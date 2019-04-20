@@ -9,6 +9,13 @@ typedef struct messageTag{
     struct messageTag *next;
 } Message;
 
+typedef struct messageSavedTag{
+    int type;
+    char *name;
+    char *msg;
+    struct messageSavedTag *next;
+} MessageSave;
+
 Message *create_list(int num, int max_num);
 void print_list(Message *e);
 void destroy_list(Message *e);

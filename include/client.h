@@ -2,17 +2,20 @@
 #define _CLIENT_
 
 
+
 typedef struct clientTag{
     int id;
-    int enetid;
+    ENetPeer *peer;
     char* name;
     struct clientTag *next;
 } Client;
 
+#include "message.h"
 
 int recieved_handshake;
 
-
+MessageSave *msg_stack;
+int msg_index;
 
 ENetHost *client;
 
@@ -31,4 +34,5 @@ int client_actions();
 int initial_connect();
 int disconnect();
 int input_handle();
+int print_messages(MessageSave *e, int index);
 #endif

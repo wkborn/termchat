@@ -18,7 +18,6 @@
 #include "client.h"
 #include "message.h"
 #include "networking.h"
-#include "message.h"
 #include "networking.h"
 #include "server.h"
 #include "ncurses_utils.h"
@@ -31,8 +30,15 @@ enum STATE {
     CLIENT
 };
 
+enum MESSAGE_TYPE {
+    MESSAGE_PEER,
+    MESSAGE_NOTICE
+};
+
 int screen_width;
 int screen_height;
+
+int message_rows;
 
 int run;
 

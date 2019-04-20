@@ -28,3 +28,6 @@ termchat: $(OBJ)
 clean:
 	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~
 	rm -f ./build/termchat
+
+install:
+	cp ./build/termchat /usr/bin/

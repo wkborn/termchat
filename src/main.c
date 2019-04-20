@@ -53,6 +53,7 @@ int init(){
     init_pair(1, COLOR_WHITE, COLOR_BLACK);
     init_pair(2, COLOR_RED, COLOR_WHITE);
     init_pair(3, COLOR_CYAN, COLOR_BLACK);
+    init_pair(4, COLOR_BLACK, COLOR_CYAN);
     
 
     getmaxyx( stdscr, screen_height, screen_width );
@@ -63,12 +64,14 @@ int init(){
             init_server();
         break;
         case CLIENT:;
-            raw();
+            cbreak();
             refresh();
             message_box_border = create_newwin(screen_height-6, screen_width, 0,0,3);
             chat_box_border = create_newwin(5, screen_width, screen_height-5,0,3);
             message_box = create_newwin(screen_height-8, screen_width-2, 1,1,1);
             chat_box = create_newwin(3, screen_width-2, screen_height-4,1,1);
+
+            message_rows = screen_height - 8;
 
             wclear(message_box);
             wclear(chat_box);
@@ -86,6 +89,7 @@ int init(){
                 run=0;
                 return -1;
             }
+            raw();
         break;
     }
 

@@ -4,6 +4,9 @@ int init_client(char* host_ip){
     
     srand(time(NULL));
 
+    msg_stack=NULL;
+    msg_index=0;
+
     this_client = calloc(1,sizeof(Client));
     this_client->id=rand();
     this_client->name = calloc(BUFFER_SIZE, sizeof(char));
@@ -12,9 +15,6 @@ int init_client(char* host_ip){
     wscanw(message_box, "%s", this_client->name );
     strtok(this_client->name, "\n");
     this_client->next = NULL;
-
-    wprintw(message_box,"Client created:\nname: %s\nid: %d\n",this_client->name, this_client->id);
-    wrefresh(message_box);
 
     recieved_handshake=0;
 
@@ -107,6 +107,9 @@ int client_actions(){
 
     input_handle();
 
+    wclear(message_box);
+    print_messages(msg_stack,msg_index);
+
     wclear(chat_box);
     wprintw(chat_box,"%s",to_send);
 
@@ -150,16 +153,36 @@ int client_parse_packet(ENetEvent e){
             char* name;
             char* msg;
 
+            MessageSave *to_add;
+
             // Now parse and assign data fields
             strtok_r((char*)e.packet->data ,":", &saveptr); // JUST THE OPCODE, can be thrown away
             name = strtok_r(NULL, ":", &saveptr);
             msg = strtok_r(NULL, ":", &saveptr);
 
-            wattron(message_box, COLOR_PAIR(2));
-            wprintw(message_box,"<%s>",name);
-            wattroff(message_box, COLOR_PAIR(2));
-            wprintw(message_box," %s\n",msg);
-            wrefresh(message_box);
+            to_add = calloc(1,sizeof(MessageSave));
+
+            to_add->type = MESSAGE_PEER;
+            to_add->msg=msg;
+            to_add->name=name;
+            to_add->next=msg_stack;
+            msg_stack=to_add;
+        break;
+        case SERVER_NOTICE:;
+            char* notice;
+
+            strtok_r((char*)e.packet->data ,":", &saveptr); // JUST THE OPCODE, can be thrown away
+            notice = strtok_r(NULL, ":", &saveptr);
+
+            MessageSave *to_add1;
+            to_add1 = calloc(1,sizeof(MessageSave));
+
+            
+            to_add1->type = MESSAGE_NOTICE;
+            to_add1->msg=notice;
+            to_add1->name=NULL;
+            to_add1->next=msg_stack;
+            msg_stack=to_add1;
         break;
     }
     return 0;
@@ -211,6 +234,15 @@ int input_handle(){
         case 27:
             run = 0;
             break;
+        case 46:
+            msg_index++;
+            break;
+        case 44:
+            msg_index--;
+            if(msg_index<0){
+                msg_index=0;
+            }
+            break;
         default:
             if(1){
                 char *to_cat = calloc(1,sizeof(char));
@@ -220,6 +252,46 @@ int input_handle(){
                 to_cat=NULL;
             }
             break;
+    }
+
+    return 0;
+}
+
+
+int print_messages(MessageSave *e, int index){
+
+    int i;
+    for (i=0;i<index;i++){
+        e = e->next;
+        if(e==NULL){
+            msg_index=i;
+            break;
+        }
+    }
+    int count = 0;
+    while(e != NULL){
+        switch(e->type){
+            case MESSAGE_PEER:
+                wattron(message_box, COLOR_PAIR(2));
+                wprintw(message_box,"<%s>",e->name);
+                wattroff(message_box, COLOR_PAIR(2));
+                wprintw(message_box," %s\n",e->msg);
+                wrefresh(message_box);
+            break;
+            case MESSAGE_NOTICE:
+                wattron(message_box, COLOR_PAIR(4));
+                wprintw(message_box,"<%s>\n",e->msg);
+                wattroff(message_box, COLOR_PAIR(4));
+                wrefresh(message_box);
+            break;
+        }
+
+        count++;
+        e = e->next;
+
+        if(count>=message_rows){
+            e = NULL;
+        }
     }
 
     return 0;

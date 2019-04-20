@@ -86,17 +86,18 @@ int parse_packet(ENetEvent e){
         enet_host_flush(server);
       } else {
         char *saveptr;
-        int id,enetid;
+        int id;
         char* name;
         // Now parse and assign data fields
         strtok_r((char*)e.packet->data ,":", &saveptr); // JUST THE OPCODE, can be thrown away
         id = atoi(strtok_r(NULL, ":", &saveptr));
-        enetid=e.peer->connectID;
         name = strtok_r(NULL, ":", &saveptr);
-        append_client(clients,name,id,enetid);
+        append_client(clients,name,id,e.peer);
         printw("%s has joined the chatroom\n",name);
+        snprintf(net_buffer,NETBUFFER_SIZE,"%d:%s has connected.:", SERVER_NOTICE, name);
+        broadcast_packet();
         snprintf(net_buffer,NETBUFFER_SIZE,"%d:%s:", SERVER_NOTICE, "Welcome to the server!");
-        broadcast_packet_peer();
+        broadcast_packet_peer(e.peer);
       }
     break;
     case ACTION:
@@ -144,16 +145,11 @@ int broadcast_packet(){
   return 0;
 }
 
-int broadcast_packet_peer(int enetid){
-  int i;
-
-  for(i = 0; i < server->peerCount; i++){
-    if(&server->peers[i].connectID == enetid){
-      packet = enet_packet_create(net_buffer, strlen(net_buffer)+1, 0);
-      enet_peer_send(&server->peers[i], 0, packet);
-      enet_host_flush(server);
-    }
-  }
+int broadcast_packet_peer(ENetPeer *peer){
+  printw("Sending packet\n");
+  packet = enet_packet_create(net_buffer, strlen(net_buffer)+1, 0);
+  enet_peer_send(peer, 0, packet);
+  enet_host_flush(server);
 
   return 0;
 }
@@ -184,11 +180,11 @@ int count_clients(Client *c){
     return count;
 }
 
-int append_client(Client *c, char *name, int id, int enetid){
+int append_client(Client *c, char *name, int id, ENetPeer *peer){
     if(c == NULL){
         clients = calloc(1,sizeof(Client));
         clients->id = id;
-        clients->enetid=enetid;
+        clients->peer=peer;
         clients->name= calloc(BUFFER_SIZE,sizeof(char));
         snprintf(clients->name,BUFFER_SIZE,"%s",name);
         return 0;
