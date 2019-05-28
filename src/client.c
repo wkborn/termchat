@@ -231,18 +231,29 @@ int input_handle(){
                 }
               }
             break;
-        case 27:
-            run = 0;
-            break;
-        case 46:
-            msg_index++;
-            break;
-        case 44:
-            msg_index--;
-            if(msg_index<0){
-                msg_index=0;
+        case 27:;
+            int e =wgetch(chat_box);
+            switch(e){
+                case 91:;
+                    int a =wgetch(chat_box);
+                    switch(a){
+                        case 65:
+                        msg_index++;
+                        break;
+                        case 66:
+                            msg_index--;
+                            if(msg_index<0){
+                                msg_index=0;
+                            }
+                        break;
+                    }
+                break;
+                default:
+                    run = 0;
+                break;
             }
-            break;
+            
+        break;
         default:
             if(1){
                 char *to_cat = calloc(1,sizeof(char));
@@ -268,8 +279,12 @@ int print_messages(MessageSave *e, int index){
             break;
         }
     }
-    int count = 0;
+    int count = message_rows-1;
+    wmove(message_box,count,0);
+    wrefresh(message_box);
     while(e != NULL){
+        wmove(message_box,count,0);
+        wrefresh(message_box);
         switch(e->type){
             case MESSAGE_PEER:
                 wattron(message_box, COLOR_PAIR(2));
@@ -286,10 +301,10 @@ int print_messages(MessageSave *e, int index){
             break;
         }
 
-        count++;
+        count--;
         e = e->next;
 
-        if(count>=message_rows){
+        if(count<0){
             e = NULL;
         }
     }
