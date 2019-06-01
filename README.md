@@ -5,7 +5,7 @@ An ncurses terminal chat program.
 Dependencies:
 
 Debian/Ubuntu
-'sudo apt install libenet-dev libncurses5-dev build-essential`
+`sudo apt install libenet-dev libncurses5-dev build-essential`
 
 Arch
 `pacman -S enet make gcc enet ncurses`
