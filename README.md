@@ -11,8 +11,8 @@ sudo make install
 
 Client:
 
-`./termchat`
+`$ termchat`
 
 Server:
 
-`termchat -s`
+`$ termchat -s`
