@@ -1,8 +1,6 @@
 #include "globals.h"
 
 int init_client(char* host_ip){
-    
-    srand(time(NULL));
 
     msg_stack=NULL;
     msg_index=0;
@@ -10,15 +8,17 @@ int init_client(char* host_ip){
     this_client = calloc(1,sizeof(Client));
     this_client->id=rand();
     this_client->name = calloc(BUFFER_SIZE, sizeof(char));
+
     wprintw(message_box,"Client name: ");
     wrefresh(message_box);
     wscanw(message_box, "%s", this_client->name );
+    
     strtok(this_client->name, "\n");
     this_client->next = NULL;
 
     recieved_handshake=0;
 
-    if(enet_initialize() != 0){
+    if(enet_initialize() != 0){ /* initialize networking */
         wprintw(message_box,"Could not initialize networking.\n");
         wrefresh(message_box);
         return -1;
@@ -96,14 +96,13 @@ int initial_connect(){
 }
 
 int update_server(){
-    // Send player info
+    /* update server info */
     send_server_message();
     return 0;
 }
 
-int client_actions(){
+int client_actions(){ /* main loop in client mode */
     client_event_handle();
-    //chat_handler();
 
     input_handle();
 
@@ -117,7 +116,7 @@ int client_actions(){
 }
 
 
-int client_event_handle(){
+int client_event_handle(){ /* execute if client recieves event */
     while(enet_host_service(client, &event, 0) > 0){
         switch(event.type){
             case ENET_EVENT_TYPE_CONNECT: break;
@@ -137,11 +136,6 @@ int client_parse_packet(ENetEvent e){
     sprintf(net_buffer, "%c", packet_data[0]);
     int opcode = atoi(net_buffer);
     switch(opcode){
-        case ACTION:
-            // Update the currently connected player arrays
-        break;
-        case DISCONNECT:
-        break;
         case HANDSHAKE:
           if (!recieved_handshake) {
             unpack_handshake(e);
@@ -155,8 +149,8 @@ int client_parse_packet(ENetEvent e){
 
             MessageSave *to_add;
 
-            // Now parse and assign data fields
-            strtok_r((char*)e.packet->data ,":", &saveptr); // JUST THE OPCODE, can be thrown away
+            /* Now parse and assign data fields */
+            strtok_r((char*)e.packet->data ,":", &saveptr); /* JUST THE OPCODE, can be thrown away */
             name = strtok_r(NULL, ":", &saveptr);
             msg = strtok_r(NULL, ":", &saveptr);
 
@@ -171,7 +165,7 @@ int client_parse_packet(ENetEvent e){
         case SERVER_NOTICE:;
             char* notice;
 
-            strtok_r((char*)e.packet->data ,":", &saveptr); // JUST THE OPCODE, can be thrown away
+            strtok_r((char*)e.packet->data ,":", &saveptr); /* JUST THE OPCODE, can be thrown away */
             notice = strtok_r(NULL, ":", &saveptr);
 
             MessageSave *to_add1;
@@ -216,7 +210,7 @@ int input_handle(){
     switch(c)
     {	
         case -1:
-            ;//do nothing
+            ; /*do nothing */
         break;
         case 10:
             chat_handler();

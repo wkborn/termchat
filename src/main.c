@@ -1,47 +1,50 @@
 #include "globals.h"
 
 int init();
-int actions();
+int loop();
 int quit();
+
+
+/* This function stops the program by setting the loop var to 0 */
 void intHandler(int dummy) {
     run = 0;
 }
 
 int main(int argc, char* argv[]){
 
-    signal(SIGINT, intHandler);	
+    signal(SIGINT, intHandler);	/* set sigint to run intHander */
 	
     verbose=0;
-    state = CLIENT;
+    state = CLIENT; /* state enum is found in globals.h */
 
     int i;
     for (i = 0; i < argc; ++i){
-        
+        /* check args passed to program */
         if(strcmp(argv[i],"-v")==0){
             verbose=1;
         }
         if(strcmp(argv[i],"-s")==0){
-            state=SERVER;
+            state=SERVER; /* -s starts a server */
             verbose=1;
         }
     }
 
-    srand(time(NULL));
-
+    srand(time(NULL)); /* seed the rng */
 
     run=1;
     init();
 
-    if(run==0){
+    if(run==0){ /* run is 0 if init() exits with an error */
         quit();
-        printf("TermChat exited with error.\n");
+        printf("TermChat exited with error.\n"); /* TODO further error handling */
         return -1;
     }
+
     while(run){
-        actions();
+        loop(); /* main loop */
     }
 
-    quit();
+    quit(); /* cleanup */
 
     return 0;
 }
@@ -96,7 +99,7 @@ int init(){
     return 0;
 }
 
-int actions(){
+int loop(){
     switch(state){
         case SERVER:
             server_actions();
@@ -128,6 +131,6 @@ int quit(){
         break;
     }
 
-    endwin();			/* End curses mode		  */
+    endwin();			/* End curses mode */
     return 0;
 }

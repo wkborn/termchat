@@ -29,13 +29,9 @@ int init_server(){
 
 int server_actions(){
 
-    //printw("running\n");
-
     server_event_handle();
 
-    //sleep(1);
-    //update_clients();
-    //TODO server actions
+    /* TODO server actions */
 
     return 0;
 }
@@ -88,8 +84,8 @@ int parse_packet(ENetEvent e){
         char *saveptr;
         int id;
         char* name;
-        // Now parse and assign data fields
-        strtok_r((char*)e.packet->data ,":", &saveptr); // JUST THE OPCODE, can be thrown away
+        /* Now parse and assign data fields */
+        strtok_r((char*)e.packet->data ,":", &saveptr); /* JUST THE OPCODE, can be thrown away */
         id = atoi(strtok_r(NULL, ":", &saveptr));
         name = strtok_r(NULL, ":", &saveptr);
         append_client(clients,name,id,e.peer);
@@ -101,18 +97,18 @@ int parse_packet(ENetEvent e){
       }
     break;
     case ACTION:
-      // For now it is just position data
+      /* For now it is just position data */
     break;
     case MESSAGE:;
-            // Print the message
+            /* Print the message */
             message_parse(e);
             broadcast_message();
     break;
     case DISCONNECT:;
         char *saveptr;
         int id;
-        // Now parse and assign data fields
-        strtok_r((char*)e.packet->data ,":", &saveptr); // JUST THE OPCODE, can be thrown away
+        /* Now parse and assign data fields */
+        strtok_r((char*)e.packet->data ,":", &saveptr); /* JUST THE OPCODE, can be thrown away */
         id = atoi(strtok_r(NULL, ":", &saveptr));
         Client *this = retrieve_client(clients,id);
         if(this==NULL){
