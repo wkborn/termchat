@@ -1,13 +1,13 @@
 An ncurses terminal chat program.
 
-#Installation
+# Installation
 
 ~~~
 make
 sudo make install
 ~~~
 
-#Usage
+# Usage
 
 Client:
 
